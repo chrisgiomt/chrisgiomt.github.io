@@ -1,0 +1,23 @@
+---
+title: "Mastering Tailwind CSS v4"
+description: "Tailwind v4 is here and it brings a new engine, better performance, and zero configuration requirements."
+pubDate: 2026-06-20
+author: "Chris"
+tags: ["Tailwind", "CSS"]
+---
+
+import Callout from '../../components/mdx/Callout.astro';
+
+# Tailwind CSS v4
+
+With the release of Tailwind v4, the reliance on a heavy Node.js configuration file is gone. Everything is powered directly through CSS imports, making it faster and easier to integrate into modern tooling like Vite.
+
+<Callout type="success" title="Zero Configuration">
+  You no longer need a `tailwind.config.js` file! Tailwind v4 automatically discovers all your variables and custom properties directly from your standard CSS files.
+</Callout>
+
+### Breaking Changes
+
+<Callout type="danger" title="Migration Warning">
+  If you heavily relied on custom Javascript plugins in your `tailwind.config.js`, you will need to migrate those scripts to standard CSS variables or use the new plugin architecture before upgrading. 
+</Callout>

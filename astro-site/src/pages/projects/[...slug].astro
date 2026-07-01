@@ -1,0 +1,22 @@
+---
+import { getCollection, render } from 'astro:content';
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+import CodeBlock from '../../components/mdx/CodeBlock.astro';
+
+// Tells Astro 5 which dynamic routes to generate
+export async function getStaticPaths() {
+  const projectEntries = await getCollection('projects');
+  return projectEntries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<ProjectLayout entry={entry}>
+  <!-- Content component renders the compiled MDX using @tailwindcss/typography -->
+  <Content components={{ pre: CodeBlock }} />
+</ProjectLayout>

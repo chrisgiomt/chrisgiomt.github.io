@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+}
+
+const { 
+  title = "Christopher | Main", 
+  description = "Personal portfolio and blog focusing on Networking, AWS, Cyber, and AI.",
+  image = "https://via.placeholder.com/1200x630.png?text=Christopher+%7C+Main",
+  type = "website"
+} = Astro.props;
+
+// Generate canonical URL using Astro.url (which is absolute if site is configured in astro.config.mjs)
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+    
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    
+    <!-- OpenGraph / LinkedIn -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <!-- Prevent FOUC when rendering dark mode -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-zinc-900 dark:text-zinc-300 antialiased min-h-screen flex flex-col">
+    <Navbar />
+    <main class="flex-grow pt-8 pb-16">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

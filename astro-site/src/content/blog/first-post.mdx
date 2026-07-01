@@ -1,0 +1,25 @@
+---
+title: "Building an Astro Site with MDX and Tailwind"
+description: "A quick look at how easy it is to render Markdown components using Astro's content collections."
+pubDate: 2026-06-30
+author: "Chris"
+tags: ["Astro", "React", "Tailwind"]
+---
+
+# Welcome to the new blog
+
+This is an MDX file! Because we are using **MDX**, we can write standard markdown like this, but also import and use React components directly inside our content if we need to later.
+
+## Why this tech stack?
+
+Astro handles the heavy lifting of parsing the markdown files safely via **Content Collections** (`src/content/config.ts`), ensuring our frontmatter is always correctly typed using Zod.
+
+### Typography Plugin in Action
+
+Thanks to `@tailwindcss/typography`, this entire article is styled automatically using the `prose` and `dark:prose-invert` classes provided in the `PostLayout.astro`.
+
+- Clean reading experience
+- Automatically responsive
+- Beautiful dark mode integration
+
+Enjoy the new blog!

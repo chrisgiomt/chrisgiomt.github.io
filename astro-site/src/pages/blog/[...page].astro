@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths({ paginate }) {
+  const allPosts = await getCollection('blog');
+  // Sort posts by date, newest first
+  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  
+  // Generate paginated routes for the blog, putting 4 posts on each page.
+  return paginate(sortedPosts, { pageSize: 4 });
+}
+
+const { page } = Astro.props as { page: any };
+---
+
+<BaseLayout title={`Blog - Page ${page.currentPage} | Christopher | Main`} description="Read my latest thoughts on Networking, AWS, Cyber, and AI.">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-8 tracking-tight">Blog</h1>
+    
+    {page.data.length === 0 ? (
+      <p class="text-slate-600 dark:text-zinc-400">No posts found yet.</p>
+    ) : (
+      <div class="space-y-8">
+        {page.data.map((post: any) => (
+          <article class="p-8 bg-white dark:bg-zinc-800/50 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-colors">
+            <h2 class="text-2xl font-bold mb-3 tracking-tight">
+              <a href={`/blog/${post.id}`} class="text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                {post.data.title}
+              </a>
+            </h2>
+            <p class="text-slate-600 dark:text-zinc-400 mb-4 leading-relaxed">{post.data.description}</p>
+            <div class="flex flex-wrap items-center text-sm text-slate-500 dark:text-zinc-500 font-medium gap-y-2">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
+              {post.data.tags && post.data.tags.length > 0 && (
+                <>
+                  <span class="mx-2 hidden sm:inline">&bull;</span>
+                  <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    {post.data.tags.map((tag: string) => (
+                      <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/20">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <!-- Pagination Controls -->
+    {page.lastPage > 1 && (
+      <div class="mt-12 flex items-center justify-between border-t border-slate-200 dark:border-zinc-800 pt-6">
+        <div>
+          {page.url.prev ? (
+            <a href={page.url.prev} class="inline-flex items-center text-sm font-medium text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              &larr; Newer Posts
+            </a>
+          ) : (
+            <span class="inline-flex items-center text-sm font-medium text-slate-300 dark:text-zinc-600 cursor-not-allowed">
+              &larr; Newer Posts
+            </span>
+          )}
+        </div>
+        <div class="text-sm font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800/50 px-3 py-1 rounded-full">
+          Page {page.currentPage} of {page.lastPage}
+        </div>
+        <div>
+          {page.url.next ? (
+            <a href={page.url.next} class="inline-flex items-center text-sm font-medium text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Older Posts &rarr;
+            </a>
+          ) : (
+            <span class="inline-flex items-center text-sm font-medium text-slate-300 dark:text-zinc-600 cursor-not-allowed">
+              Older Posts &rarr;
+            </span>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>

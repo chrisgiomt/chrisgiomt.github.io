@@ -1,0 +1,50 @@
+---
+title: "Understanding React Server Components"
+description: "A deep dive into how server components are changing the frontend landscape and when you should actually use them."
+pubDate: 2026-06-25
+author: "Chris"
+tags: ["React", "Architecture"]
+---
+
+import Callout from '../../components/mdx/Callout.astro';
+
+# React Server Components
+
+React Server Components allow you to render components ahead of time on the server, resulting in zero bundle size for the client. 
+
+<Callout type="info" title="What are Server Components?">
+  React Server Components (RSC) represent a massive paradigm shift. By default, components in the new App Router execute entirely on the server. They literally **do not exist** in the JavaScript bundle sent to the client!
+</Callout>
+
+### How it looks in code
+
+Here is an example of what an asynchronous Server Component looks like in Next.js. Notice how we are securely querying the database directly inside the component without needing a separate API route!
+
+```tsx
+import { db } from '@/lib/db';
+import { PostCard } from './PostCard';
+
+// 1. This component runs entirely on the server!
+export default async function BlogFeed() {
+  // 2. Direct database query, no API route needed
+  const posts = await db.query.posts.findMany({
+    orderBy: { createdAt: 'desc' },
+    limit: 10
+  });
+
+  // 3. Render the markup statically
+  return (
+    <div className="grid grid-cols-2 gap-8">
+      {posts.map((post) => (
+        <PostCard key={post.id} data={post} />
+      ))}
+    </div>
+  );
+}
+```
+
+<Callout type="warning" title="Watch out for State!">
+  Because server components never run on the client, you **cannot** use `useState`, `useEffect`, or any standard event listeners like `onClick` inside them. They are purely for static markup and data-fetching.
+</Callout>
+
+If you need interactivity, you must explicitly mark a component with `"use client"`.
