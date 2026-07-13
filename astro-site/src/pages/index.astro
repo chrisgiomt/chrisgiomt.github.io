@@ -2,13 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allPosts = await getCollection('blog');
+const allPosts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
 const recentPosts = allPosts
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3); // Get top 3 most recent posts
 ---
 
-<BaseLayout title="Chris | Frontend Engineer" description="Personal portfolio and blog of Chris.">
+<BaseLayout title="Christopher | Main" description="Personal portfolio and blog focusing on Networking, AWS, Cybersecurity, and AI.">
   <!-- Hero Section -->
   <section class="pt-20 pb-16 md:pt-32 md:pb-24 px-6 max-w-5xl mx-auto">
     <div class="max-w-3xl">
@@ -16,7 +18,7 @@ const recentPosts = allPosts
         Hi, I'm <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Chris.</span>
       </h1>
       <p class="text-xl md:text-2xl text-slate-600 dark:text-zinc-400 leading-relaxed mb-10">
-        I'm a Senior Frontend Engineer specializing in React, Astro, and Tailwind CSS. I build fast, accessible, and visually stunning web experiences.
+        I am a tech enthusiast focusing on Networking, AWS, Cybersecurity, and AI. I build secure, scalable, and intelligent cloud solutions.
       </p>
       <div class="flex flex-wrap gap-4">
         <a href="/projects" class="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors shadow-sm">
@@ -39,7 +41,7 @@ const recentPosts = allPosts
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {recentPosts.map((post) => (
-          <article class="relative flex flex-col p-6 bg-white dark:bg-zinc-800/50 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 hover:border-blue-500/50 dark:hover:border-blue-500/50 hover:shadow-md transition-all h-full group">
+          <article class="group relative flex flex-col p-6 bg-white dark:bg-zinc-800/50 rounded-2xl ring-1 ring-slate-200 dark:ring-zinc-700 hover:ring-blue-500 dark:hover:ring-blue-500 transition-all hover:shadow-lg dark:hover:shadow-blue-900/20 h-full">
             <div class="text-sm text-slate-500 dark:text-zinc-400 mb-3 font-medium">
               <time datetime={post.data.pubDate.toISOString()}>
                 {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

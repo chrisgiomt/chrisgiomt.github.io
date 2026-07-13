@@ -2,7 +2,7 @@
 const props = Astro.props;
 ---
 
-<div class="not-prose my-8 rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-200 dark:ring-white/10">
+<div class="not-prose my-8 rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-200 dark:ring-white/10 min-w-0 w-full">
   <!-- Mac OS Terminal Window Header -->
   <div class="flex items-center px-4 py-3 border-b border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950">
     <div class="flex space-x-2">
@@ -13,7 +13,7 @@ const props = Astro.props;
   </div>
   
   <!-- Shiki Code Output -->
-  <div class="[&>pre]:!m-0 [&>pre]:!p-5 [&>pre]:!rounded-none text-sm leading-relaxed overflow-x-auto">
+  <div class="[&>pre]:!m-0 [&>pre]:!p-5 [&>pre]:!rounded-none [&>pre]:!bg-transparent [&>pre]:overflow-x-auto text-sm leading-relaxed overflow-x-auto w-full min-w-0">
     <pre {...props}>
       <slot />
     </pre>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 - Page Not Found | Christopher | Main" description="Oops! The page you are looking for does not exist.">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+    <div class="space-y-6">
+      <h1 class="text-6xl md:text-7xl leading-none font-extrabold tracking-tighter pb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">404</span>
+      </h1>
+      <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+        Page not found
+      </h2>
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+        Oops! The page you're looking for seems to have vanished into the digital void.
+      </p>
+      
+      <div class="pt-8">
+        <a href="/" class="inline-flex items-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors shadow-sm">
+          <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Back to&nbsp;<span class="text-blue-400 dark:text-blue-600 ml-1">Main</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

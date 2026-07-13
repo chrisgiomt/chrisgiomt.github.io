@@ -1,23 +1,100 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+
+const pathname = new URL(Astro.request.url).pathname;
+const isBlog = pathname.startsWith('/blog');
+const isProjects = pathname.startsWith('/projects');
 ---
 
 <nav class="sticky top-0 z-50 w-full backdrop-blur-md bg-white/70 dark:bg-zinc-900/80 border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
-  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between relative z-20">
     <!-- Logo -->
     <a href="/" class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">
       Christopher <span class="text-slate-400 dark:text-zinc-500 font-normal mx-1">|</span> <span class="text-blue-600 dark:text-blue-400">Main</span>
     </a>
 
-    <!-- Navigation Links -->
+    <!-- Desktop Navigation Links -->
     <div class="hidden md:flex items-center space-x-8">
-      <a href="/blog" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Blog</a>
-      <a href="/projects" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Projects</a>
+      <a href="/blog" class={`text-sm font-medium transition-colors ${isBlog ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400'}`}>Blog</a>
+      <a href="/projects" class={`text-sm font-medium transition-colors ${isProjects ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400'}`}>Projects</a>
     </div>
 
     <!-- Actions -->
     <div class="flex items-center space-x-4">
       <ThemeToggle />
+      
+      <!-- Mobile Menu Toggle Button -->
+      <button 
+        id="mobile-menu-toggle" 
+        aria-label="Toggle mobile menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="md:hidden p-2 -mr-2 rounded-lg text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <div class="w-5 h-5 flex flex-col justify-center items-center relative">
+          <span class="bg-current block w-5 h-[2px] absolute transition-all duration-300 ease-in-out -translate-y-1.5" id="hamburger-line-1"></span>
+          <span class="bg-current block w-5 h-[2px] absolute transition-all duration-300 ease-in-out" id="hamburger-line-2"></span>
+          <span class="bg-current block w-5 h-[2px] absolute transition-all duration-300 ease-in-out translate-y-1.5" id="hamburger-line-3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Dropdown -->
+  <div 
+    id="mobile-menu" 
+    class="md:hidden absolute top-full left-0 w-full overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0 pointer-events-none bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-xl"
+  >
+    <div class="px-6 py-6 flex flex-col space-y-4">
+      <a href="/blog" class={`block text-lg font-medium transition-colors ${isBlog ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>Blog</a>
+      <a href="/projects" class={`block text-lg font-medium transition-colors ${isProjects ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>Projects</a>
     </div>
   </div>
 </nav>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const line1 = document.getElementById('hamburger-line-1');
+    const line2 = document.getElementById('hamburger-line-2');
+    const line3 = document.getElementById('hamburger-line-3');
+    
+    if (!toggleBtn || !mobileMenu) return;
+
+    let isMenuOpen = false;
+
+    toggleBtn.addEventListener('click', () => {
+      isMenuOpen = !isMenuOpen;
+      toggleBtn.setAttribute('aria-expanded', isMenuOpen);
+      
+      if (isMenuOpen) {
+        // Open Menu
+        mobileMenu.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
+        mobileMenu.classList.add('max-h-[400px]', 'opacity-100', 'pointer-events-auto');
+        
+        // Animate Hamburger to X
+        line1.classList.remove('-translate-y-1.5');
+        line1.classList.add('rotate-45');
+        
+        line2.classList.add('opacity-0');
+        
+        line3.classList.remove('translate-y-1.5');
+        line3.classList.add('-rotate-45');
+      } else {
+        // Close Menu
+        mobileMenu.classList.remove('max-h-[400px]', 'opacity-100', 'pointer-events-auto');
+        mobileMenu.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
+        
+        // Animate X back to Hamburger
+        line1.classList.remove('rotate-45');
+        line1.classList.add('-translate-y-1.5');
+        
+        line2.classList.remove('opacity-0');
+        
+        line3.classList.remove('-rotate-45');
+        line3.classList.add('translate-y-1.5');
+      }
+    });
+  });
+</script>

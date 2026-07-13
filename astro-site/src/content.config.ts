@@ -11,6 +11,7 @@ const blogCollection = defineCollection({
     author: z.string().default('Chris'),
     tags: z.array(z.string()).optional(),
     image: z.string().optional(),
+    draft: z.boolean().optional().default(false),
   }),
 });
 
@@ -24,6 +25,7 @@ const projectsCollection = defineCollection({
     techStack: z.array(z.string()),
     link: z.string().url().optional(), // e.g. Live site or GitHub
     image: z.string().optional(),
+    draft: z.boolean().optional().default(false),
   }),
 });
 

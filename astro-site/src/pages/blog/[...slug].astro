@@ -5,7 +5,9 @@ import CodeBlock from '../../components/mdx/CodeBlock.astro';
 
 // This function tells Astro which dynamic routes to generate at build time
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
+  const blogEntries = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
   return blogEntries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },
