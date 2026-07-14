@@ -1,13 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getProjects } from '../../utils/api';
 import ProjectLayout from '../../layouts/ProjectLayout.astro';
 import CodeBlock from '../../components/mdx/CodeBlock.astro';
 
 // Tells Astro 5 which dynamic routes to generate
 export async function getStaticPaths() {
-  const projectEntries = await getCollection('projects', ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
+  const projectEntries = await getProjects();
   return projectEntries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },

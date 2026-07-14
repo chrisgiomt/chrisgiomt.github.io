@@ -1,13 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getRecentBlogPosts } from '../utils/api';
 
-const allPosts = await getCollection('blog', ({ data }) => {
-  return import.meta.env.PROD ? data.draft !== true : true;
-});
-const recentPosts = allPosts
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3); // Get top 3 most recent posts
+const recentPosts = await getRecentBlogPosts(3);
 ---
 
 <BaseLayout title="Christopher | Main" description="Personal portfolio and blog focusing on Networking, AWS, Cybersecurity, and AI.">

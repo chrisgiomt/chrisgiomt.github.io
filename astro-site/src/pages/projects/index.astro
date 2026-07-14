@@ -1,13 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { getCollection } from 'astro:content';
+import { getProjects } from '../../utils/api';
 
-const allProjects = await getCollection('projects', ({ data }) => {
-  return import.meta.env.PROD ? data.draft !== true : true;
-});
-// Sort by completionDate descending (newest first)
-const sortedProjects = allProjects.sort((a, b) => b.data.completionDate.valueOf() - a.data.completionDate.valueOf());
+const sortedProjects = await getProjects();
 ---
 
 <BaseLayout title="Projects | Christopher | Main" description="A showcase of my recent work, open-source contributions, and technical projects.">

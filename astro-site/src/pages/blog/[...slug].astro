@@ -1,13 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getBlogPosts } from '../../utils/api';
 import PostLayout from '../../layouts/PostLayout.astro';
 import CodeBlock from '../../components/mdx/CodeBlock.astro';
 
 // This function tells Astro which dynamic routes to generate at build time
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog', ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
+  const blogEntries = await getBlogPosts();
   return blogEntries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },

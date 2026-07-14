@@ -8,13 +8,15 @@ interface Props {
   description?: string;
   image?: string;
   type?: "website" | "article";
+  noindex?: boolean;
 }
 
 const { 
   title = "Christopher | Main", 
   description = "Personal portfolio and blog focusing on Networking, AWS, Cyber, and AI.",
   image = "https://via.placeholder.com/1200x630.png?text=Christopher+%7C+Main",
-  type = "website"
+  type = "website",
+  noindex = false
 } = Astro.props;
 
 // Generate canonical URL using Astro.url (which is absolute if site is configured in astro.config.mjs)
@@ -26,11 +28,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#18181b" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
     
+    <!-- SEO / Robots -->
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Cybersecurity: Content Security Policy (CSP) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    
+    <!-- Cybersecurity: Referrer Policy -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <!-- Primary Meta Tags -->
     <title>{title}</title>
     <meta name="title" content={title} />
@@ -42,6 +55,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(image, Astro.site)} />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(image, Astro.site)} />
     <!-- Prevent FOUC when rendering dark mode -->
     <script is:inline>
       const theme = (() => {
@@ -66,5 +86,118 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Footer />
+    
+    <script is:inline>
+      window.initCodeBlocks = function() {
+        const codeBlocks = document.querySelectorAll('pre.astro-code');
+        
+        codeBlocks.forEach(pre => {
+          // If already wrapped (just in case), skip
+          if (pre.closest('.not-prose')) return;
+          
+          // Create the wrapper
+          const wrapper = document.createElement('div');
+          wrapper.className = 'not-prose my-8 rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-200 dark:ring-white/10 min-w-0 w-full relative group';
+          
+          // Create the Mac OS Header
+          const header = document.createElement('div');
+          header.className = 'flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950';
+          
+          // Create the 3 dots
+          const dotsContainer = document.createElement('div');
+          dotsContainer.className = 'flex space-x-2';
+          dotsContainer.innerHTML = `
+            <div class="w-3 h-3 rounded-full bg-red-400 dark:bg-red-500/90"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-400 dark:bg-yellow-500/90"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-400 dark:bg-green-500/90"></div>
+          `;
+          
+          // Create the Copy Button
+          const copyBtn = document.createElement('button');
+          copyBtn.type = 'button';
+          copyBtn.className = 'copy-code-btn flex items-center justify-center text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1';
+          copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+          copyBtn.innerHTML = `
+            <svg class="w-4 h-4 copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <svg class="w-4 h-4 check-icon hidden text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          `;
+          
+          // Copy logic
+          copyBtn.addEventListener('click', async () => {
+            const copyIcon = copyBtn.querySelector('.copy-icon');
+            const checkIcon = copyBtn.querySelector('.check-icon');
+            try {
+              await navigator.clipboard.writeText(pre.textContent || '');
+              copyIcon.classList.add('hidden');
+              checkIcon.classList.remove('hidden');
+              setTimeout(() => {
+                copyIcon.classList.remove('hidden');
+                checkIcon.classList.add('hidden');
+              }, 2000);
+            } catch (err) {
+              console.error('Failed to copy text: ', err);
+              // Fallback UI for denied clipboard permissions
+              copyBtn.classList.add('text-red-500');
+              setTimeout(() => {
+                copyBtn.classList.remove('text-red-500');
+              }, 2000);
+            }
+          });
+          
+          header.appendChild(dotsContainer);
+          header.appendChild(copyBtn);
+          
+          // Wrap the pre tag
+          pre.parentNode.insertBefore(wrapper, pre);
+          
+          // Style the pre tag to fit inside the wrapper
+          const preContainer = document.createElement('div');
+          preContainer.className = 'text-sm leading-relaxed overflow-x-auto w-full min-w-0';
+          
+          // Override Shiki's default margins/padding to fit nicely in our wrapper
+          pre.style.margin = '0';
+          pre.style.padding = '1.25rem';
+          pre.style.borderRadius = '0';
+          pre.style.backgroundColor = 'transparent';
+          pre.style.overflowX = 'auto';
+          
+          preContainer.appendChild(pre);
+          wrapper.appendChild(header);
+          wrapper.appendChild(preContainer);
+        });
+      };
+
+      window.initExternalLinks = function() {
+        const links = document.querySelectorAll('a[href^="http"]');
+        links.forEach(link => {
+          // If the link is external (not matching our hostname)
+          if (link.hostname !== window.location.hostname) {
+            link.setAttribute('target', '_blank');
+            // Security: Prevent reverse tabnabbing attacks
+            link.setAttribute('rel', 'noopener noreferrer');
+          }
+        });
+      };
+
+      // Run on initial load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          window.initCodeBlocks();
+          window.initExternalLinks();
+        });
+      } else {
+        window.initCodeBlocks();
+        window.initExternalLinks();
+      }
+      
+      // Run on subsequent view transitions (if Astro ClientRouter is added later)
+      if (!window.codeBlocksListenerAttached) {
+        document.addEventListener('astro:after-swap', () => {
+          window.initCodeBlocks();
+          window.initExternalLinks();
+        });
+        window.codeBlocksListenerAttached = true;
+      }
+    </script>
   </body>
 </html>

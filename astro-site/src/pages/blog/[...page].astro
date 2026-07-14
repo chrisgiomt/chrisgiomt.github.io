@@ -1,13 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getBlogPosts } from '../../utils/api';
+import type { PaginateFunction } from 'astro';
 
-export async function getStaticPaths({ paginate }) {
-  const allPosts = await getCollection('blog', ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
-  // Sort posts by date, newest first
-  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
+  const sortedPosts = await getBlogPosts();
   
   // Generate paginated routes for the blog, putting 4 posts on each page.
   return paginate(sortedPosts, { pageSize: 4 });
