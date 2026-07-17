@@ -1,0 +1,38 @@
+---
+title: "What I'm doing now"
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CodeBlock from '../components/mdx/CodeBlock.astro';
+export const components = { pre: CodeBlock };
+
+<BaseLayout title={frontmatter.title} description="A living document of what I am currently focused on.">
+  <article class="max-w-3xl mx-auto px-6 py-16">
+    <div class="prose prose-slate dark:prose-invert lg:prose-lg mx-auto">
+      
+      # What I'm doing now
+      
+      *(This is a ["now page"](https://nownownow.com/about), and if you have your own site, you should make one, too.)*
+      
+      ---
+      
+      ## 📚 Currently Studying
+      I am actively drilling deep into network engineering and cloud architecture. Right now, I am preparing for my **CCNA** certification, focusing specifically on subnetting, OSPF routing, and VLAN configurations. 
+      
+      Alongside networking, I am working through the **AWS Certified Cloud Practitioner** material to solidify my foundational understanding of cloud economics and infrastructure.
+      
+      ## 🛠️ Currently Building
+      I spend most of my free time in my **Homelab**. My current project involves configuring a secure reverse proxy to safely expose internal services, while locking down the firewall. 
+      
+      I'm also experimenting with running local, uncensored Large Language Models (LLMs) on my own hardware to build an automated AI-driven network assistant.
+      
+      ## 📖 Currently Reading
+      - *Network Warrior* by Gary A. Donahue
+      - *The Phoenix Project* by Gene Kim
+      
+      ---
+      
+      *Last updated: July 2026*
+      
+    </div>
+  </article>
+</BaseLayout>

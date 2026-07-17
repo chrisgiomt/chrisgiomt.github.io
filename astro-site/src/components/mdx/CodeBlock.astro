@@ -23,12 +23,19 @@ const props = Astro.props;
   </div>
   
   <!-- Shiki Code Output -->
-  <div class="[&>pre]:!m-0 [&>pre]:!p-5 [&>pre]:!rounded-none [&>pre]:!bg-transparent [&>pre]:overflow-x-auto text-sm leading-relaxed overflow-x-auto w-full min-w-0">
-    <pre {...props}>
-      <slot />
-    </pre>
+  <div class="[&>pre]:!m-0 [&>pre]:!p-5 [&>pre]:!rounded-none [&>pre]:overflow-x-auto text-sm leading-relaxed overflow-x-auto w-full min-w-0">
+    <pre {...props}><slot /></pre>
   </div>
 </div>
+
+<style is:global>
+  /* Force Shiki dual themes to activate when the .dark class is toggled */
+  html.dark .astro-code,
+  html.dark .astro-code span {
+    background-color: var(--shiki-dark-bg) !important;
+    color: var(--shiki-dark) !important;
+  }
+</style>
 
 <script is:inline>
   window.initMDXCodeBlocks = function() {

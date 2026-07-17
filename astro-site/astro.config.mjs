@@ -1,5 +1,6 @@
 // @ts-check
 import { EventEmitter } from 'events';
+import rehypeExternalLinks from 'rehype-external-links';
 
 // Prevent Node.js MaxListenersExceededWarning during rapid local dev navigation
 EventEmitter.defaultMaxListeners = 20;
@@ -19,7 +20,10 @@ export default defineConfig({
         light: 'github-light',
         dark: 'github-dark',
       }
-    }
+    },
+    rehypePlugins: [
+      [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }]
+    ]
   },
 
   vite: {
