@@ -6,11 +6,11 @@ import { glob } from 'astro/loaders';
 const blogCollection = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
   schema: ({ image }) => z.object({
-    title: z.string(),
-    description: z.string(),
-    pubDate: z.coerce.date(), // Safely parse strings to Date objects
-    author: z.string().default('Chris'),
-    tags: z.array(z.string()).optional(),
+    title: z.coerce.string().trim().min(1),
+    description: z.coerce.string().trim().min(1),
+    pubDate: z.union([z.string(), z.number(), z.date()]).pipe(z.coerce.date()).refine((d) => !isNaN(d.getTime()), { message: "Invalid date string" }),
+    author: z.coerce.string().trim().min(1).default('Chris'),
+    tags: z.array(z.coerce.string().trim().min(1)).min(1).optional(),
     image: image().optional(),
     draft: z.boolean().optional().default(false),
   }),
@@ -20,11 +20,11 @@ const blogCollection = defineCollection({
 const projectsCollection = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
   schema: ({ image }) => z.object({
-    title: z.string(),
-    description: z.string(),
-    completionDate: z.coerce.date(),
-    techStack: z.array(z.string()),
-    link: z.string().url().optional(), // e.g. Live site or GitHub
+    title: z.coerce.string().trim().min(1),
+    description: z.coerce.string().trim().min(1),
+    completionDate: z.union([z.string(), z.number(), z.date()]).pipe(z.coerce.date()).refine((d) => !isNaN(d.getTime()), { message: "Invalid date string" }),
+    techStack: z.array(z.coerce.string().trim().min(1)).min(1),
+    link: z.string().url().or(z.literal('')).nullish(), // Optional link that accepts empty strings
     image: image().optional(),
     draft: z.boolean().optional().default(false),
   }),

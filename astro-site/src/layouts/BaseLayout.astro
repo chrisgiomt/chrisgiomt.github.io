@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 
 interface Props {
   title?: string;
@@ -9,6 +10,8 @@ interface Props {
   image?: string;
   type?: "website" | "article";
   noindex?: boolean;
+  prevUrl?: string;
+  nextUrl?: string;
 }
 
 const { 
@@ -16,7 +19,9 @@ const {
   description = "Personal portfolio and blog focusing on Networking, AWS, Cyber, and AI.",
   image = "https://via.placeholder.com/1200x630.png?text=Christopher+%7C+Main",
   type = "website",
-  noindex = false
+  noindex = false,
+  prevUrl,
+  nextUrl
 } = Astro.props;
 
 // Generate canonical URL using Astro.url (which is absolute if site is configured in astro.config.mjs)
@@ -31,12 +36,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#18181b" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
     
     <!-- SEO / Robots -->
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {prevUrl && <link rel="prev" href={prevUrl} />}
+    {nextUrl && <link rel="next" href={nextUrl} />}
 
     <!-- Cybersecurity: Content Security Policy (CSP) -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
@@ -48,20 +57,32 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="author" content="Christopher" />
     
     <!-- OpenGraph / LinkedIn -->
+    <meta property="og:site_name" content="Christopher | Main" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(image, Astro.site)} />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    {type === 'article' && (
+      <meta property="article:author" content="Christopher" />
+    )}
     
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(image, Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@yourhandle" />
+    <meta name="twitter:creator" content="@yourhandle" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, Astro.site)} />
+    <meta name="twitter:image:alt" content={title} />
     <!-- Prevent FOUC when rendering dark mode -->
     <script is:inline>
       const theme = (() => {
@@ -86,6 +107,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Footer />
-    
+    <CommandPalette />
   </body>
 </html>

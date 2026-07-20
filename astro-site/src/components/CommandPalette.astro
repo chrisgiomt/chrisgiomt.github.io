@@ -1,0 +1,305 @@
+---
+// src/components/CommandPalette.astro
+import { getCollection } from 'astro:content';
+
+const navCommands = [
+  { id: 'home', title: 'Home', action: '/', icon: '🏠' },
+  { id: 'blog', title: 'Blog', action: '/blog', icon: '📝' },
+  { id: 'projects', title: 'Projects', action: '/projects', icon: '🚀' },
+  { id: 'now', title: 'Now', action: '/now', icon: '⚡' },
+  { id: 'theme', title: 'Toggle Theme', action: 'theme', icon: '🌓' },
+];
+
+// Fetch collections, filtering out drafts if any
+const rawBlogs = await getCollection('blog', ({ data }) => {
+  return data.draft !== true;
+});
+const rawProjects = await getCollection('projects', ({ data }) => {
+  return data.draft !== true;
+});
+
+// Map into searchable commands
+const blogCommands = rawBlogs.map(post => ({
+  id: `blog-${post.id}`,
+  title: post.data.title,
+  action: `/blog/${post.id}`,
+  icon: '📄',
+  tags: post.data.tags ? post.data.tags.join(' ').toLowerCase() : ''
+}));
+
+const projectCommands = rawProjects.map(project => ({
+  id: `project-${project.id}`,
+  title: project.data.title,
+  action: `/projects/${project.id}`,
+  icon: '💡',
+  tags: project.data.techStack ? project.data.techStack.join(' ').toLowerCase() : ''
+}));
+
+const contentCommands = [...blogCommands, ...projectCommands];
+---
+
+<dialog id="command-palette" class="backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm bg-transparent w-full max-w-2xl mt-[10vh] p-0 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-700 outline-none overflow-hidden m-auto">
+  <div class="bg-white dark:bg-zinc-900 flex flex-col w-full shadow-2xl">
+    
+    <!-- Search Input Area -->
+    <div class="flex items-center px-4 py-4 border-b border-slate-100 dark:border-zinc-800">
+      <svg class="w-6 h-6 text-slate-400 dark:text-zinc-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input 
+        type="text" 
+        id="cp-search" 
+        placeholder="Search commands, blogs, or tags..." 
+        class="w-full bg-transparent text-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 outline-none border-none focus:ring-0 p-0"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button id="cp-close" class="px-2 py-1 ml-2 text-xs font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800 rounded-md border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
+        ESC
+      </button>
+    </div>
+
+    <!-- Command List -->
+    <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-2" id="cp-results">
+      <!-- Nav Commands -->
+      {navCommands.map((cmd) => (
+        <button 
+          class="cp-item w-full text-left px-4 py-3 flex items-center gap-3 rounded-xl transition-colors text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 focus:outline-none"
+          data-type="nav"
+          data-action={cmd.action}
+          data-title={cmd.title.toLowerCase()}
+          data-tags=""
+        >
+          <span class="text-xl">{cmd.icon}</span>
+          <span class="font-medium">{cmd.title}</span>
+          <span class="ml-auto text-xs text-slate-400 dark:text-zinc-500 hidden md:inline-block">Jump to</span>
+        </button>
+      ))}
+
+      <!-- Content Commands (Hidden by default) -->
+      {contentCommands.map((cmd) => (
+        <button 
+          class="cp-item w-full text-left px-4 py-3 items-center gap-3 rounded-xl transition-colors text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 focus:outline-none hidden"
+          style="display: none;"
+          data-type="content"
+          data-action={cmd.action}
+          data-title={cmd.title.toLowerCase()}
+          data-tags={cmd.tags}
+        >
+          <span class="text-xl">{cmd.icon}</span>
+          <div class="flex flex-col">
+            <span class="font-medium">{cmd.title}</span>
+            {cmd.tags && <span class="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5 uppercase tracking-wider font-semibold">{cmd.tags.split(' ').join(' • ')}</span>}
+          </div>
+          <span class="ml-auto text-xs text-slate-400 dark:text-zinc-500 hidden md:inline-block">Jump to</span>
+        </button>
+      ))}
+
+      <div id="cp-empty" class="hidden px-4 py-8 text-center text-slate-500 dark:text-zinc-400">
+        <span id="cp-empty-text">No commands found.</span>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  /* Base Dialog styling for smooth open/close (supported in newer browsers) */
+  dialog {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  }
+  dialog[open] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Active class for Arrow Key navigation */
+  .cp-active-item {
+    background-color: #f1f5f9; /* slate-100 */
+    color: #0f172a; /* slate-900 */
+  }
+  :global(.dark) .cp-active-item {
+    background-color: #27272a; /* zinc-800 */
+    color: #ffffff;
+  }
+</style>
+
+<script is:inline>
+  // Attach global keydown listener ONLY ONCE per window lifecycle
+  if (!window.cpGlobalListenerAttached) {
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault(); // Stop browser search hijacking
+        
+        // Dynamically fetch the current dialog to survive Astro View Transition DOM swaps
+        const dialog = document.getElementById('command-palette');
+        if (!dialog) return;
+
+        if (dialog.open) {
+          dialog.close();
+        } else {
+          // If openPalette is available on the window, use it to handle focus and state
+          if (window.openCommandPalette) {
+            window.openCommandPalette();
+          } else {
+            dialog.showModal();
+          }
+        }
+      }
+    });
+    window.cpGlobalListenerAttached = true;
+  }
+
+  // Initialize per-page logic (runs on initial load AND every View Transition)
+  function initCommandPalette() {
+    const dialog = document.getElementById('command-palette');
+    const searchInput = document.getElementById('cp-search');
+    const items = Array.from(document.querySelectorAll('.cp-item'));
+    const emptyState = document.getElementById('cp-empty');
+    const emptyStateText = document.getElementById('cp-empty-text');
+    const closeBtn = document.getElementById('cp-close');
+    
+    if (!dialog || !searchInput) return;
+
+    let activeIndex = 0;
+    let visibleItems = [...items];
+
+    // Open palette
+    function openPalette() {
+      dialog.showModal();
+      searchInput.value = '';
+      filterItems('');
+      searchInput.focus();
+    }
+
+    // Expose globally for the Navbar button AND the global keydown listener
+    window.openCommandPalette = openPalette;
+
+    // Close palette
+    function closePalette() {
+      dialog.close();
+    }
+
+    // Execute action
+    function executeAction(action) {
+      closePalette();
+      if (action === 'theme') {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      } else {
+        window.location.href = action;
+      }
+    }
+
+    // Update Visual Active State
+    function updateActiveState() {
+      items.forEach(item => item.classList.remove('cp-active-item'));
+      if (visibleItems.length > 0) {
+        if (activeIndex >= visibleItems.length) activeIndex = visibleItems.length - 1;
+        if (activeIndex < 0) activeIndex = 0;
+        
+        const activeItem = visibleItems[activeIndex];
+        activeItem.classList.add('cp-active-item');
+        activeItem.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    // Filter Items
+    function filterItems(query) {
+      const q = query.toLowerCase().trim();
+      const terms = q.split(/\s+/).filter(Boolean); 
+      visibleItems = [];
+      
+      items.forEach(item => {
+        const type = item.getAttribute('data-type');
+        const title = item.getAttribute('data-title') || '';
+        const tags = item.getAttribute('data-tags') || '';
+        const combined = (title + " " + tags).toLowerCase();
+        
+        let isMatch = false;
+
+        if (terms.length === 0) {
+          isMatch = (type === 'nav');
+        } else {
+          isMatch = terms.every(term => combined.includes(term));
+        }
+
+        if (isMatch) {
+          item.style.display = 'flex';
+          visibleItems.push(item);
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      if (visibleItems.length === 0) {
+        emptyState.style.display = 'block';
+        if (query.trim().length > 0) {
+          emptyStateText.innerText = `No results found for '${query.trim()}'. Try searching for 'AWS' or 'Cybersecurity'.`;
+        } else {
+          emptyStateText.innerText = 'No commands found.';
+        }
+      } else {
+        emptyState.style.display = 'none';
+      }
+
+      activeIndex = 0;
+      updateActiveState();
+    }
+
+    // Local dialog event listeners (These get wiped and re-attached safely by View Transitions)
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % visibleItems.length;
+        updateActiveState();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + visibleItems.length) % visibleItems.length;
+        updateActiveState();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (visibleItems.length > 0) {
+          const action = visibleItems[activeIndex].getAttribute('data-action');
+          executeAction(action);
+        }
+      }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      filterItems(e.target.value);
+    });
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.getAttribute('data-action');
+        executeAction(action);
+      });
+      item.addEventListener('mouseenter', () => {
+        activeIndex = visibleItems.indexOf(item);
+        updateActiveState();
+      });
+    });
+
+    dialog.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.bottom && rect.left <= e.clientX && e.clientX <= rect.right);
+      if (!isInDialog) {
+        closePalette();
+      }
+    });
+
+    closeBtn.addEventListener('click', closePalette);
+  }
+
+  // Hook into Astro lifecycle safely
+  document.addEventListener('astro:page-load', initCommandPalette);
+  document.addEventListener('DOMContentLoaded', initCommandPalette);
+</script>

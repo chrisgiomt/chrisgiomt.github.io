@@ -4,6 +4,8 @@ import { getProjects } from '../../utils/api';
 import ProjectLayout from '../../layouts/ProjectLayout.astro';
 import CodeBlock from '../../components/mdx/CodeBlock.astro';
 
+import type { CollectionEntry } from 'astro:content';
+
 // Tells Astro 5 which dynamic routes to generate
 export async function getStaticPaths() {
   const projectEntries = await getProjects();
@@ -11,6 +13,10 @@ export async function getStaticPaths() {
     params: { slug: entry.id },
     props: { entry },
   }));
+}
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
 }
 
 const { entry } = Astro.props;

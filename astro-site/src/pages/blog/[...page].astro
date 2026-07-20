@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getBlogPosts } from '../../utils/api';
-import type { PaginateFunction } from 'astro';
+import type { PaginateFunction, Page } from 'astro';
+import type { CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
   const sortedPosts = await getBlogPosts();
@@ -10,10 +11,19 @@ export async function getStaticPaths({ paginate }: { paginate: PaginateFunction 
   return paginate(sortedPosts, { pageSize: 4 });
 }
 
-const { page } = Astro.props as { page: any };
+interface Props {
+  page: Page<CollectionEntry<'blog'>>;
+}
+
+const { page } = Astro.props;
 ---
 
-<BaseLayout title={`Blog - Page ${page.currentPage} | Christopher | Main`} description="Read my latest thoughts on Networking, AWS, Cyber, and AI.">
+<BaseLayout 
+  title={`Blog - Page ${page.currentPage} | Christopher | Main`} 
+  description="Read my latest thoughts on Networking, AWS, Cyber, and AI."
+  prevUrl={page.url.prev}
+  nextUrl={page.url.next}
+>
   <div class="max-w-4xl mx-auto px-6 py-12">
     <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-8 tracking-tight">Blog</h1>
     
@@ -21,23 +31,23 @@ const { page } = Astro.props as { page: any };
       <p class="text-slate-600 dark:text-zinc-400">No posts found yet.</p>
     ) : (
       <div class="space-y-8">
-        {page.data.map((post: any) => (
+        {page.data.map((post) => (
           <article class="group relative flex flex-col p-8 bg-white dark:bg-zinc-800/50 rounded-2xl ring-1 ring-slate-200 dark:ring-zinc-700 hover:ring-blue-500 dark:hover:ring-blue-500 transition-all hover:shadow-lg dark:hover:shadow-blue-900/20">
-            <h2 class="text-2xl font-bold mb-3 tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h2 class="text-2xl font-bold mb-3 tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors break-words">
               <a href={`/blog/${post.id}`}>
                 <span class="absolute inset-0"></span>
                 {post.data.title}
               </a>
             </h2>
-            <p class="text-slate-600 dark:text-zinc-400 mb-4 leading-relaxed">{post.data.description}</p>
+            <p class="text-slate-600 dark:text-zinc-400 mb-4 leading-relaxed line-clamp-3">{post.data.description}</p>
             <div class="flex flex-wrap items-center text-sm text-slate-500 dark:text-zinc-500 font-medium gap-y-2">
               <time datetime={post.data.pubDate.toISOString()}>
                 {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </time>
               {post.data.tags && post.data.tags.length > 0 && (
                 <>
-                  <span class="mx-2 hidden sm:inline">&bull;</span>
-                  <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                  <span class="mx-2 hidden md:inline">&bull;</span>
+                  <div class="flex flex-wrap gap-2 w-full md:w-auto mt-2 md:mt-0">
                     {post.data.tags.map((tag: string) => (
                       <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/20">
                         {tag}

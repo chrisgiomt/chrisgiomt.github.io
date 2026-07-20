@@ -16,7 +16,7 @@ const { project } = Astro.props;
   </div>
   
   <div class="max-w-xl">
-    <h2 class="mt-3 text-xl font-bold leading-6 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight">
+    <h2 class="mt-3 text-xl font-bold leading-6 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight break-words">
       <a href={`/projects/${project.id}`}>
         <span class="absolute inset-0"></span>
         {project.data.title}
@@ -28,7 +28,7 @@ const { project } = Astro.props;
   </div>
   
   <div class="mt-5 flex flex-wrap gap-2">
-    {project.data.techStack.map(tech => (
+    {project.data.techStack?.map(tech => (
       <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/20">
         {tech}
       </span>
