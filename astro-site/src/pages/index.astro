@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getRecentBlogPosts } from '../utils/api';
+import Timeline from '../components/Timeline.astro';
 
 const recentPosts = await getRecentBlogPosts(3);
 ---
@@ -23,6 +24,21 @@ const recentPosts = await getRecentBlogPosts(3);
           Read the Blog
         </a>
       </div>
+    </div>
+  </section>
+
+  <!-- Timeline Section -->
+  <section class="px-6 py-20 bg-slate-50 dark:bg-zinc-900 border-t border-slate-200 dark:border-zinc-800 relative overflow-hidden">
+    <!-- Subtle background decoration -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-blue-500/5 dark:bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+    
+    <div class="max-w-5xl mx-auto relative z-10">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">The Journey So Far</h2>
+        <p class="text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto">A timeline of my professional growth, certifications, and technical milestones.</p>
+      </div>
+      
+      <Timeline />
     </div>
   </section>
 
